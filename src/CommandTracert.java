@@ -11,7 +11,8 @@ import java.util.regex.Pattern;
  * Created by starSea_AB on 2017/9/14.
  */
 public class CommandTracert {
-
+    // 将返回一次tracert查询的结果
+    // 返回形式为Map：Key为返回结果的行数，Value为每一行的最后一个IP（如果没有匹配到IP，则返回空串）
     public Map<Integer,String> command(String website) {
         System.out.println("The website/IP you want to tracert is: " + website);
         //CommandTracert command = new CommandTracert();
