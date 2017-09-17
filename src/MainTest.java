@@ -1,55 +1,32 @@
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by starSea_AB on 2017/9/14.
  */
 public class MainTest {
     // websites domain names
-    // static final String[] websites = {"www.163.com", "www.baidu.com", "www.souhu.com", "www.sina.com.cn", "www.taobao.com", "www.12306.cn"};
-    static final String[] websites = {"www.163.com"};
+    public final static String[] websites = {"www.163.com", "www.baidu.com", "www.souhu.com", "www.sina.com.cn", "www.taobao.com", "www.12306.cn"};
+    //public final static String[] websites = {"www.163.com","www.baidu.com"};
     static int websitesNum = websites.length;
-    static final int TRACERT_TIMES = 5;
     // compareResults 保存着比较的结果——有多少次路径的变化
-    static int[] compareResults = new int[websitesNum];
+    public static int[] compareResults = new int[websitesNum];
+    public final static int TRACERT_TIMES = 100;
 
     public static void main(String[] args) {
+        // 创建线程数量与域名数量一致的线程池，tracert每一个域名使用一个线程
+        ExecutorService executor = Executors.newFixedThreadPool(websitesNum);
         for(int i = 0; i < websitesNum; i++) {
-            // 创建一个元素为HashMap的List容器
-            // 如果目的服务器IP出现不同，则将其作为一个新的路径，存放在List中
-            ArrayList<HashMap<Integer,String>> tracertStandardList = new ArrayList<>();
-
-            HashMap<Integer,String> tracertTmp = new HashMap<>();
-            CommandTracert command = new CommandTracert();
-
-            int count = 0;
-            while(count < TRACERT_TIMES) {
-                // tracertResults.add(command.command(websites[0]));
-                // 每次获取一个tracert结果，然后与标准进行比较
-                tracertTmp = command.command(websites[i]);
-                mapPrint(tracertTmp);
-                //System.out.println("Tracert Times: " + count);
-
-                HashMap<Integer,String> tracertStandard = getIdenticalServerIP(tracertStandardList, tracertTmp);
-                if(tracertStandard == null) {
-                    // 说明list中所包含的目的服务器IP，与当前tracert结果的目的服务器IP都不相同，需要将该结果新添加进list中
-                    tracertStandardList.add(tracertTmp);
-                    System.out.println("Null and Add" + tracertStandardList.size());
-                }
-                else {
-                    // 若包含tracert结果中的目的服务器，则需要通过逐一路由节点的比较，判断是否路径相同
-                    boolean judgeResult = hasIdenticalRoutingPath(tracertStandardList,tracertStandard,tracertTmp);
-                    if(judgeResult) { // 对于路径不相同的情况，进行计数
-                        count++;
-                    }
-                    else {
-                        count++;
-                        compareResults[i]++;
-                    }
-                }
-            }
+            Runnable thread = new WorkThread(i);
+            executor.execute(thread);
         }
-        System.out.println(compareResults[0]);
-        BarChart chart = new BarChart(websites,compareResults);
+        executor.shutdown();
+        while(!executor.isTerminated()) {}
+        System.out.println("All the threads have been finished!");
+
+        BarChart chart = new BarChart(websites,compareResults,TRACERT_TIMES);
         chart.getChartPanel();
     }
 
@@ -59,6 +36,7 @@ public class MainTest {
         for(Map.Entry<Integer,String> e : entry) {
             System.out.print("Key:" + e.getKey() + "-Value:" + e.getValue());
         }
+        System.out.println();
     }
 
     public static HashMap<Integer,String> getIdenticalServerIP(ArrayList<HashMap<Integer,String>> standardList, HashMap<Integer,String> tmpMap) {

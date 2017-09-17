@@ -18,12 +18,14 @@ public class BarChart {
     ChartPanel frame;
     static int[] ylabel;
     static String[] xlabel;
-    public BarChart(String[] websites, int[] compareResults) {
+    private static int TRACERT_TIMES = 0;
+    public BarChart(String[] websites, int[] compareResults, int TRACERT_TIMES) {
         ylabel = compareResults;
         xlabel = websites;
+        this.TRACERT_TIMES = TRACERT_TIMES;
         CategoryDataset dataset = getDataSet();
         JFreeChart chart = ChartFactory.createBarChart3D(
-                "Tracert Command Results(Test " + compareResults.length + " Times)", // title
+                "Tracert Command Results(Test " + compareResults.length + "Websites - " + TRACERT_TIMES + " Times)", // title
                 "Websites", // horizontal axis
                 "Routing Different Times", // vertical axis
                 dataset,

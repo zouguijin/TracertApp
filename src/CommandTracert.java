@@ -14,12 +14,12 @@ public class CommandTracert {
     // 将返回一次tracert查询的结果
     // 返回形式为Map：Key为返回结果的行数，Value为每一行的最后一个IP（如果没有匹配到IP，则返回空串）
     public HashMap<Integer,String> command(String website) {
-        System.out.println("The website/IP you want to tracert is: " + website);
+        System.out.println("The website/IP you want to tracert is: " + website + " , tracerting......");
         //CommandTracert command = new CommandTracert();
         String tracert = "tracert" + " " + website;
         HashMap<Integer,String> responseMap = new HashMap<Integer,String>();
         try {
-            System.out.println("Tracert is working......");
+            //System.out.println("Tracert is working......");
             Process process = Runtime.getRuntime().exec(tracert);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String response = null;
